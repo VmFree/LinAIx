@@ -1,408 +1,429 @@
 # LinAIx
 
 <p align="center">
-  <em>当 Linux 遇见智能 — AI 时代的操作系统内核</em>
+  <em>Where Linux Meets Intelligence — The Kernel for the AI Era</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/rust-1.85+-orange.svg" alt="Rust 版本"/>
-  <img src="https://img.shields.io/badge/license-GPLv2-blue.svg" alt="许可证"/>
-  <img src="https://img.shields.io/badge/status-early--stage-red.svg" alt="项目状态"/>
+  <img src="https://img.shields.io/badge/rust-1.85+-orange.svg" alt="Rust Version"/>
+  <img src="https://img.shields.io/badge/license-GPLv2-blue.svg" alt="License"/>
+  <img src="https://img.shields.io/badge/status-early--stage-red.svg" alt="Status"/>
 </p>
 
 ---
 
-## 📖 [English](./README.md) | 中文
+## 📖 English | [中文](./README.zh-CN.md)
 
 ---
 
-## 🎯 核心目标
+## 🎯 Core Mission
 
-LinAIx 是一个为 AI 原生时代从零构建的操作系统内核。它的核心目标可以概括为一句话：
+LinAIx is an operating system kernel built from the ground up for the AI-native era. Its core mission can be summarized in one sentence:
 
-> **为 AI Agent 提供操作系统级的抽象与治理能力，让 Agent 从「不可控的黑盒脚本」进化为「可观测、可调度、可矫正、可安全隔离的系统级公民」。**
+> **Provide operating system-level abstraction and governance for AI Agents, transforming them from uncontrollable black-box scripts into observable, schedulable, correctable, and securely isolated first-class system citizens.**
 
-具体分解为五个维度：
+This mission is broken down into five dimensions:
 
-### 1. 标准化系统调用 —— Skill 即 API
+### 1. Standardized System Calls — Skill as API
 
-当前每个 Agent 框架都有自己的工具调用方式，互不兼容。LinAIx 将外部能力抽象为标准的 **Skill（系统调用）**，Agent 只需调用统一接口，底层实现可无缝替换。
+Every Agent framework today has its own incompatible tool invocation methods. LinAIx abstracts external capabilities as standard **Skills (system calls)**. Agents invoke unified interfaces while underlying implementations can be swapped seamlessly.
 
-### 2. 内核级治理 —— 调度、隔离、配额
+### 2. Kernel-Level Governance — Scheduling, Isolation, Quotas
 
-将 Agent 视为操作系统的一等公民进程，提供生命周期管理、公平调度、资源隔离和配额控制，避免单个 Agent 拖垮整个系统。
+Agents are treated as first-class operating system processes, with full lifecycle management, fair scheduling, resource isolation, and quota controls — preventing any single Agent from crashing the entire system.
 
-### 3. 可观测与强制干预 —— 为专家提供「矫正工具箱」
+### 3. Observability and Mandatory Intervention — A "Correction Toolbox" for Experts
 
-借鉴 Linux 的 `ptrace` 和 `coredump`，提供完整的内核级诊断能力。当 Agent 失控时，专家可从内核层强行抢占、回收资源、吊销权限，无需 Agent 配合。
+Drawing from Linux's `ptrace` and `coredump`, LinAIx provides comprehensive kernel-level diagnostic capabilities. When Agents spiral out of control, experts can forcibly preempt, reclaim resources, and revoke permissions from the kernel layer — without Agent cooperation.
 
-### 4. 算力中立 —— 本地/远程透明切换
+### 4. Compute Neutrality — Transparent Local/Remote Switching
 
-通过硬件抽象层（HAL），Agent 无感知地在本地 GPU、云端 API 或私有模型集群间切换，调度器根据成本、延迟、隐私策略自动路由。
+Through the Hardware Abstraction Layer (HAL), Agents seamlessly switch between local GPUs, cloud APIs, or private model clusters. The scheduler automatically routes based on cost, latency, or privacy policies.
 
-### 5. 安全与隔离 —— 零信任的 Agent 沙箱
+### 5. Security and Isolation — Zero-Trust Agent Sandbox
 
-| 安全能力 | 说明 | 类比 |
+| Security Capability | Description | Analogy |
 | :--- | :--- | :--- |
-| **身份与认证** | 每个 Agent 拥有唯一身份标识，启动时需验证 | Linux 的 UID/GID |
-| **权限最小化** | Agent 仅被授予其明确需要的 Skill 权限 | Linux Capabilities |
-| **资源隔离** | Agent 运行在独立的资源沙箱中，内存/显存/网络相互隔离 | 容器/VM 隔离 |
-| **数据沙箱** | Agent 之间无法直接访问彼此的记忆和上下文数据 | 进程地址空间隔离 |
-| **Prompt 注入防御** | 系统级输入过滤，检测并阻断恶意注入攻击 | Web 应用 WAF |
-| **操作审计** | 所有 Skill 调用、权限变更、系统操作全链路审计 | Linux auditd |
+| **Identity & Authentication** | Every Agent has a unique identity verified at startup | Linux UID/GID |
+| **Least Privilege** | Agents granted only explicitly required Skill permissions | Linux Capabilities |
+| **Resource Isolation** | Agents run in independent resource sandboxes (memory/GPU/network isolated) | Container/VM isolation |
+| **Data Sandbox** | Agents cannot directly access each other's memory or context data | Process address space isolation |
+| **Prompt Injection Defense** | System-level input filtering detects and blocks malicious injection attacks | Web Application WAF |
+| **Operation Auditing** | All Skill invocations, permission changes, and system operations are audited end-to-end | Linux auditd |
 
 ---
 
-## 🔴 Agent 生态的痛点
+## 🔴 The Agent Ecosystem Pain Points
 
-当前 AI Agent 开发与运维中普遍存在的 **7 大类 29 项痛点**，正是 LinAIx 要解决的核心问题。
+LinAIx addresses **7 categories with 29 specific pain points** prevalent in current AI Agent development and operations.
 
-### 痛点总览
+### Pain Points Overview
 
-| 类别 | 痛点 | 具体表现 | LinAIx 解法 |
+| Category | Pain Point | Manifestation | LinAIx Solution |
 | :---: | :--- | :--- | :--- |
-| **① 工具与互操作** | 工具调用互不兼容 | LangChain用`@tool`，CrewAI继承`BaseTool`，AutoGen用`register_function`，切换框架需重写所有工具代码 | L4 Skill API 统一系统调用 |
-| | 工具版本管理混乱 | 工具更新后无法平滑迁移，Agent代码硬编码工具名称和参数 | Skill 注册中心支持版本化路由 |
-| **② 资源与调度** | 资源无治理 | 单个Agent可耗尽全部GPU显存，无配额限制，影响其他Agent | L2 资源管理器 + 配额控制 |
-| | Token爆炸与成本失控 | Agent陷入循环，短时间内生成数百万Token，API费用爆炸式增长 | 调度器 Token 配额上限 + 强制抢占 |
-| | 死锁与相互等待 | Agent A持有资源等待B，B持有资源等待A，系统整体卡死 | 内置死锁检测与打破机制 |
-| | 资源饥荒与饥饿 | 高优先级Agent长期得不到推理槽位，任务超时失败 | 加权公平队列防止饥饿 |
-| | 公平调度缺失 | 高优先级任务被低优先级任务抢占资源，无法保证关键Agent响应质量 | L3 调度器优先级与抢占 |
-| | 推理引擎碎片化 | vLLM/TensorRT-LLM/llama.cpp各有不同API，Agent需为每个引擎写适配 | L1 HAL 统一推理接口 |
-| **③ 可观测与运维** | 运维黑盒不可观测 | Agent推理过程完全不可见，不知道它在想什么、为什么卡住 | 完整可观测性接口 |
-| | 无法调试与复现 | 温度采样引入随机性，同一Prompt在不同时间产生不同结果 | 确定性模式 + 推理链录制 |
-| | 缺少单步调试能力 | 没有类似`gdb`的工具可以单步调试Agent推理链 | 内核级调试接口（断点/单步） |
-| | 状态不可持久化 | Agent崩溃后KV Cache和对话历史全部丢失，长任务需从头开始 | KV Cache 持久化到磁盘 |
-| | 状态无法迁移 | Agent无法在不同GPU/节点间迁移，故障恢复成本高 | 状态序列化 + 迁移机制 |
-| **④ 算力与模型** | 算力锁定 | Agent硬编码`gpt-4-turbo`被OpenAI绑定，或硬编码本地Llama被硬件锁定 | L1 HAL 算力抽象 |
-| | 模型版本混沌管理 | 模型下架/更新/性能退化时需手动修改所有Agent代码并重新部署 | 模型路由表动态切换/灰度回滚 |
-| | 冷启动灾难 | 70B模型加载需30-60秒，KV Cache每次重新计算，高频任务效率极低 | 模型预加载 + KV复用 + Fork |
-| | 无法动态路由 | 无法根据成本、延迟、隐私等策略自动选择最合适的推理后端 | 策略引擎自动路由 |
-| **⑤ 安全与隔离** | Agent间无隔离 | 一个Agent可读取/修改另一个Agent的记忆或文件，存在数据泄露风险 | 数据沙箱 + 进程地址空间隔离 |
-| | 权限管控缺失 | Agent可调用任意工具，无最小权限原则，恶意Agent可滥用系统能力 | RBAC/ABAC + 默认拒绝 |
-| | Prompt注入攻击 | 用户输入可操纵Agent执行非预期的系统命令或越权操作 | 系统级输入过滤 + 注入检测 |
-| | 无操作审计 | 无法追溯"谁在什么时候调用了什么工具、结果如何" | 全链路审计日志 |
-| | API密钥安全隐患 | 多云/多模型API密钥散落在代码和配置文件中 | 密钥安全存储 + 统一凭证管理 |
-| **⑥ 生命周期** | Agent生命周期混乱 | 没有统一的启动、暂停、恢复、终止机制 | 调度器统一生命周期管理 |
-| | 无法优雅降级 | 远程API不可用或限流时Agent直接报错，无降级策略 | HAL 故障转移自动切换 |
-| | Agent间通信缺失 | 多Agent协作时无标准化的消息传递机制 | IPC 子系统标准化消息传递 |
-| | 长时间运行退化 | 长上下文Agent记忆膨胀导致推理变慢 | 记忆管理器自动压缩/归档 |
-| **⑦ 开发体验** | 缺少标准化SDK | 每个框架有自己的Agent开发范式，学习成本高 | 统一 SDK (Python/Go) |
-| | 本地与生产环境割裂 | 本地小模型与生产大模型行为不一致 | HAL 确保行为一致性 |
-| | 无CI/CD支持 | Agent代码变更后缺乏标准化测试、部署、回滚流程 | 灰度发布 + 版本管理 |
+| **① Tools & Interop** | Tool invocation incompatible | LangChain uses `@tool`, CrewAI inherits `BaseTool`, AutoGen uses `register_function` — switching frameworks requires rewriting all tool code | L4 Skill API unifies system calls |
+| | Tool versioning chaos | Tool updates cannot be smoothly migrated; Agent code hardcodes tool names and parameters | Skill registry supports versioned routing |
+| **② Resources & Scheduling** | No resource governance | A single Agent can exhaust all GPU memory without quota limits, impacting other Agents | L2 Resource Manager + quota controls |
+| | Token explosion & cost runaway | Agent enters a loop generating millions of Tokens, API costs explode | Scheduler Token quota caps + mandatory preemption |
+| | Deadlock & mutual wait | Agent A holds resources waiting for B, B holds resources waiting for A — system freezes | Built-in deadlock detection and breaking |
+| | Resource starvation | High-priority Agents cannot get inference slots, tasks time out | Weighted fair queuing prevents starvation |
+| | No fair scheduling | High-priority tasks preempted by low-priority tasks, critical Agent response quality suffers | L3 Scheduler priority + preemption |
+| | Inference engine fragmentation | vLLM/TensorRT-LLM/llama.cpp each have different APIs; Agents need adapters for each engine | L1 HAL unified inference interface |
+| **③ Observability & Ops** | Ops black box — not observable | Agent reasoning process completely invisible — cannot see what it's thinking or why it's stuck | Full observability interface |
+| | Cannot debug or reproduce | Temperature sampling introduces randomness — same Prompt yields different results at different times | Deterministic mode + reasoning chain recording |
+| | No step-through debugging | No `gdb`-like tool for stepping through Agent reasoning chains | Kernel-level debug interface (breakpoints/step) |
+| | State not persistent | Agent crash loses KV Cache and conversation history — long tasks restart from scratch | KV Cache persistence to disk |
+| | State cannot migrate | Agent cannot migrate across GPUs/nodes — high failure recovery cost | State serialization + migration |
+| **④ Compute & Models** | Compute lock-in | Agent hardcodes `gpt-4-turbo` bound to OpenAI, or hardcodes local Llama bound to specific hardware | L1 HAL compute abstraction |
+| | Model version chaos | Model deprecation/update/performance regression requires manually modifying all Agent code and redeploying | Model routing table with dynamic switching/canary rollback |
+| | Cold start disaster | 70B model loading takes 30-60 seconds; KV Cache recomputed every time — high-frequency tasks extremely inefficient | Model preloading + KV reuse + Fork |
+| | No dynamic routing | Cannot automatically select optimal inference backend based on cost, latency, or privacy policies | Policy engine auto-routing |
+| **⑤ Security & Isolation** | No inter-Agent isolation | One Agent can read/modify another Agent's memory or files — data leak risk | Data sandbox + process address space isolation |
+| | Missing permission controls | Agent can invoke any tool without least-privilege principle — malicious Agent can abuse system capabilities | RBAC/ABAC + default deny |
+| | Prompt injection attacks | User input can manipulate Agent into executing unexpected system commands or privilege escalation | System-level input filtering + injection detection |
+| | No operation auditing | Cannot trace "who invoked what tool, when, and with what result" | End-to-end audit logs |
+| | API key security risks | Multi-cloud/multi-model API keys scattered across code and config files | Secure key storage + unified credential management |
+| **⑥ Lifecycle** | Agent lifecycle chaos | No unified startup, pause, resume, terminate mechanism | Scheduler unified lifecycle management |
+| | No graceful degradation | Remote API unavailable or rate-limited causes Agent to crash with no fallback | HAL automatic failover switching |
+| | Missing inter-Agent communication | Multi-Agent collaboration has no standardized messaging mechanism | IPC subsystem standardized messaging |
+| | Long-running degradation | Long-context Agent memory bloats, slowing inference | Memory Manager automatic compression/archiving |
+| **⑦ Developer Experience** | No standardized SDK | Each framework has its own Agent development paradigm — steep learning curve | Unified SDK (Python/Go) |
+| | Local vs production environment mismatch | Local small models behave differently from production large models | HAL ensures behavior consistency |
+| | No CI/CD support | Agent code changes lack standardized testing, deployment, rollback processes | Canary deployment + version management |
 
-### 痛点 → 子系统映射
+### Pain Point → Subsystem Mapping
+
+```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│ 痛点 → LinAIx 子系统映射 │
+│                    Pain Point → LinAIx Subsystem Mapping                        │
 ├─────────────────────────────────────────────────────────────────────────────────┤
-│ │
-│ ① 工具与互操作性 → L4 Tool Manager (Skill API) │
-│ ② 资源与调度 → L3 Scheduler + L2 Resource Manager │
-│ ③ 可观测与运维 → Observability 横切服务 │
-│ ④ 算力与模型 → L1 HAL + L3 Scheduler (策略引擎) │
-│ ⑤ 安全与隔离 → Security Manager 横切服务 │
-│ ⑥ 生命周期 → L3 Scheduler + L2 Resource Manager + IPC │
-│ ⑦ 开发体验 → SDK (Python/Go) + Tool Manager (注册中心) │
-│ │
+│                                                                                 │
+│  ① Tools & Interoperability  →  L4 Tool Manager (Skill API)                   │
+│  ② Resources & Scheduling    →  L3 Scheduler + L2 Resource Manager            │
+│  ③ Observability & Ops       →  Observability Cross-Cutting Service           │
+│  ④ Compute & Models          →  L1 HAL + L3 Scheduler (Policy Engine)         │
+│  ⑤ Security & Isolation      →  Security Manager Cross-Cutting Service        │
+│  ⑥ Lifecycle                 →  L3 Scheduler + L2 Resource Manager + IPC      │
+│  ⑦ Developer Experience      →  SDK (Python/Go) + Tool Manager (Registry)    │
+│                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 📍 所在层级
+## 📍 Where LinAIx Fits
 
-LinAIx 在整个 AI 技术栈中处于**操作系统层**——填补了 Agent 框架与推理引擎之间的空白。
+LinAIx occupies the **operating system layer** in the AI technology stack — filling the gap between Agent frameworks and inference engines.
 
+```
 ┌─────────────────────────────────────────────────────────────────┐
-│ 应用层 业务逻辑、用户界面 │
-│ ───────────────────────────────────────────────────────────── │
-│ Agent 框架 LangChain, CrewAI, AutoGen │
-│ (规划、记忆、工具编排) │
-│ ───────────────────────────────────────────────────────────── │
-│ ╔═══════════════════════════════════════════════════════════╗│
-│ ║ LinAIx 内核 ◄── 我们在这里 ║│
-│ ║ 调度、隔离、可观测、Skill 抽象、算力路由、安全沙箱 ║│
-│ ╚═══════════════════════════════════════════════════════════╝│
-│ ───────────────────────────────────────────────────────────── │
-│ 推理引擎 vLLM, TensorRT-LLM, llama.cpp │
-│ (模型加载、高效推理) │
-│ ───────────────────────────────────────────────────────────── │
-│ 硬件层 GPU / TPU / CPU │
+│  Application    Business Logic, User Interface                │
+│  ───────────────────────────────────────────────────────────── │
+│  Agent Frameworks  LangChain, CrewAI, AutoGen                │
+│                    (Planning, Memory, Tool Orchestration)    │
+│  ───────────────────────────────────────────────────────────── │
+│  ╔═══════════════════════════════════════════════════════════╗│
+│  ║  LinAIx Kernel  ◄── We are here                          ║│
+│  ║  Scheduling, Isolation, Observability, Skill Abstraction ║│
+│  ║  Compute Routing, Security Sandbox                       ║│
+│  ╚═══════════════════════════════════════════════════════════╝│
+│  ───────────────────────────────────────────────────────────── │
+│  Inference Engines  vLLM, TensorRT-LLM, llama.cpp           │
+│                    (Model Loading, Efficient Inference)      │
+│  ───────────────────────────────────────────────────────────── │
+│  Hardware          GPU / TPU / CPU                          │
 └─────────────────────────────────────────────────────────────────┘
+```
 
-
-**LinAIx 不解决「智能问题」（推理质量、幻觉、对齐），而是解决「系统问题」（可靠性、可治理性、可规模化、安全性）。**
+**LinAIx does NOT solve "intelligence problems" (reasoning quality, hallucinations, alignment). It solves "systems problems" (reliability, governability, scalability, security).**
 
 ---
 
-## 🏗️ 架构图
+## 🏗️ Architecture
 
-### 五层架构总览
+### Five-Layer Architecture Overview
 
+```
 ┌─────────────────────────────────────────────────────────────────────┐
-│ │
-│ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ 用户态 (User Space) │ │
-│ │ ┌──────────────────────────────────────────────────────┐ │ │
-│ │ │ L5 Agent 运行时 │ │ │
-│ │ │ • Agent 进程执行环境 │ │ │
-│ │ │ • 生命周期管理 (启动/暂停/恢复/终止) │ │ │
-│ │ │ • 多 Agent 协作 │ │ │
-│ │ └──────────────────────────────────────────────────────┘ │ │
-│ │ ┌──────────────────────────────────────────────────────┐ │ │
-│ │ │ L4 Skill API — 「系统调用表」 │ │ │
-│ │ │ • 工具注册与发现 │ │ │
-│ │ │ • 调用鉴权与审计 │ │ │
-│ │ │ • 限流与熔断 │ │ │
-│ │ └──────────────────────────────────────────────────────┘ │ │
-│ └─────────────────────────────────────────────────────────────┘ │
-│ │
-│ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ 内核态 (Kernel Space) │ │
-│ │ ┌──────────────────────────────────────────────────────┐ │ │
-│ │ │ L3 Agent 调度器 — 「进程调度器」 │ │ │
-│ │ │ • 任务排队与分发 │ │ │
-│ │ │ • 优先级与抢占 │ │ │
-│ │ │ • 上下文切换 (KV Cache 保存/恢复) │ │ │
-│ │ │ • 死锁检测与打破 │ │ │
-│ │ └──────────────────────────────────────────────────────┘ │ │
-│ │ ┌──────────────────────────────────────────────────────┐ │ │
-│ │ │ L2 资源管理器 — 「内存管理」 │ │ │
-│ │ │ • KV Cache 池化 │ │ │
-│ │ │ • GPU 显存 / CPU 内存分配 │ │ │
-│ │ │ • 配额与限流 │ │ │
-│ │ │ • 状态持久化与迁移 │ │ │
-│ │ └──────────────────────────────────────────────────────┘ │ │
-│ │ ┌──────────────────────────────────────────────────────┐ │ │
-│ │ │ L1 硬件抽象层 (HAL) — 「设备驱动」 │ │ │
-│ │ │ • 本地推理 (GPU / CPU) │ │ │
-│ │ │ • 远程推理 (云端 API / 模型集群) │ │ │
-│ │ │ • 异构芯片适配 (NVIDIA / AMD / 华为昇腾) │ │ │
-│ │ │ • 模型路由与版本管理 │ │ │
-│ │ └──────────────────────────────────────────────────────┘ │ │
-│ └─────────────────────────────────────────────────────────────┘ │
-│ │
-│ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ 横切服务 (Cross-Cutting Services) │ │
-│ │ ┌───────────┐ ┌───────────┐ ┌───────────────────────┐ │ │
-│ │ │ 可观测性 │ │ IPC │ │ 记忆管理器 │ │ │
-│ │ │ 指标/追踪 │ │ Agent间 │ │ 向量存储/长期记忆 │ │ │
-│ │ │ 日志/转储 │ │ 消息传递 │ │ 压缩/归档 │ │ │
-│ │ └───────────┘ └───────────┘ └───────────────────────┘ │ │
-│ │ ┌───────────────────────────────────────────────────────┐ │ │
-│ │ │ 安全管理器 (Security Manager) — 横切所有层级 │ │ │
-│ │ │ 身份认证 / 权限授权 / 数据隔离 / 注入防御 / 审计 │ │ │
-│ │ └───────────────────────────────────────────────────────┘ │ │
-│ └─────────────────────────────────────────────────────────────┘ │
-│ │
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │                   User Space                                 │   │
+│  │  ┌──────────────────────────────────────────────────────┐  │   │
+│  │  │  L5  Agent Runtime                                  │  │   │
+│  │  │  • Agent process execution environment              │  │   │
+│  │  │  • Lifecycle management (start/pause/resume/terminate)│ │   │
+│  │  │  • Multi-Agent collaboration                         │  │   │
+│  │  └──────────────────────────────────────────────────────┘  │   │
+│  │  ┌──────────────────────────────────────────────────────┐  │   │
+│  │  │  L4  Skill API — "System Call Table"               │  │   │
+│  │  │  • Tool registration and discovery                  │  │   │
+│  │  │  • Invocation authentication and auditing           │  │   │
+│  │  │  • Rate limiting and circuit breaking               │  │   │
+│  │  └──────────────────────────────────────────────────────┘  │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │                   Kernel Space                              │   │
+│  │  ┌──────────────────────────────────────────────────────┐  │   │
+│  │  │  L3  Agent Scheduler — "Process Scheduler"          │  │   │
+│  │  │  • Task queuing and dispatching                     │  │   │
+│  │  │  • Priority and preemption                          │  │   │
+│  │  │  • Context switching (KV Cache save/restore)        │  │   │
+│  │  │  • Deadlock detection and breaking                  │  │   │
+│  │  └──────────────────────────────────────────────────────┘  │   │
+│  │  ┌──────────────────────────────────────────────────────┐  │   │
+│  │  │  L2  Resource Manager — "Memory Management"         │  │   │
+│  │  │  • KV Cache pooling                                 │  │   │
+│  │  │  • GPU memory / CPU memory allocation               │  │   │
+│  │  │  • Quotas and rate limiting                         │  │   │
+│  │  │  • State persistence and migration                  │  │   │
+│  │  └──────────────────────────────────────────────────────┘  │   │
+│  │  ┌──────────────────────────────────────────────────────┐  │   │
+│  │  │  L1  Hardware Abstraction Layer — "Device Drivers"  │  │   │
+│  │  │  • Local inference (GPU / CPU)                      │  │   │
+│  │  │  • Remote inference (Cloud API / Model Clusters)    │  │   │
+│  │  │  • Heterogeneous chip adapters (NVIDIA/AMD/Huawei)  │  │   │
+│  │  │  • Model routing and version management             │  │   │
+│  │  └──────────────────────────────────────────────────────┘  │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │              Cross-Cutting Services                         │   │
+│  │  ┌───────────┐  ┌───────────┐  ┌───────────────────────┐  │   │
+│  │  │Observabilty│  │   IPC     │  │  Memory Manager       │  │   │
+│  │  │Metrics/    │  │ Agent-to- │  │  Vector Storage/      │  │   │
+│  │  │Traces/     │  │ Agent     │  │  Long-term Memory     │  │   │
+│  │  │Logs/Dumps  │  │ Messaging │  │  Compression/Archive  │  │   │
+│  │  └───────────┘  └───────────┘  └───────────────────────┘  │   │
+│  │  ┌───────────────────────────────────────────────────────┐  │   │
+│  │  │  Security Manager — Cross-Cuts All Layers            │  │   │
+│  │  │  Authentication / Authorization / Data Isolation /   │  │   │
+│  │  │  Injection Defense / Auditing                        │  │   │
+│  │  └───────────────────────────────────────────────────────┘  │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+```
 
+### Subsystem Dependency Diagram
 
-### 子系统依赖关系
-
+```
+                         ┌─────────────────┐
+                         │   Agent App     │
+                         └────────┬────────┘
+                                  │
+                                  ▼
+                         ┌─────────────────┐
+                         │   Tool Manager  │ ◄── Skill register/invoke/auth
+                         │   (L4)          │
+                         └────────┬────────┘
+                                  │
+         ┌────────────────────────┼────────────────────────┐
+         │                        │                        │
+         ▼                        ▼                        ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│    Scheduler    │    │       IPC       │    │  Memory Manager │
+│    (L3)         │    │   Agent-to-     │    │   Long-term     │
+│                 │    │   Agent Comm    │    │   Memory        │
+└────────┬────────┘    └─────────────────┘    └─────────────────┘
+         │
+         ▼
 ┌─────────────────┐
-│ Agent 应用 │
+│    Resource     │
+│    Manager      │
+│    (L2)         │
 └────────┬────────┘
-│
-▼
+         │
+         ▼
 ┌─────────────────┐
-│ Tool Manager │ ◄── Skill 注册/调用/鉴权
-│ (L4) │
-└────────┬────────┘
-│
-┌────────────────────────┼────────────────────────┐
-│ │ │
-▼ ▼ ▼
-┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-│ Scheduler │ │ IPC │ │ Memory Manager │
-│ (L3) │ │ Agent间通信 │ │ 长期记忆 │
-└────────┬────────┘ └─────────────────┘ └─────────────────┘
-│
-▼
-┌─────────────────┐
-│ Resource │
-│ Manager │
-│ (L2) │
-└────────┬────────┘
-│
-▼
-┌─────────────────┐
-│ HAL (L1) │ ◄── 本地/远程推理
+│    HAL (L1)     │ ◄── Local/Remote Inference
 └─────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
-│ Observability (横切所有层) │
-│ 指标采集 / 链路追踪 / 日志 / Core Dump │
+│                  Observability (Cross-Cuts All)                 │
+│          Metrics / Tracing / Logs / Core Dump                   │
 ├─────────────────────────────────────────────────────────────────┤
-│ Security Manager (横切所有层) │
-│ 身份认证 / 权限授权 / 数据隔离 / 注入防御 / 全链路审计 │
+│                  Security Manager (Cross-Cuts All)              │
+│   Authentication / Authorization / Data Isolation / Injection   │
+│   Defense / End-to-End Auditing                                │
 └─────────────────────────────────────────────────────────────────┘
-
+```
 
 ---
 
-## 💡 核心理念
+## 💡 Core Concepts
 
-### Agent 即进程
+### Agent as Process
 
-Agent 是系统的一等公民进程。它拥有：
-- **PID**：唯一身份标识
-- **凭证 (Credentials)**：UID、GID、权限集合
-- **上下文**：KV Cache、对话历史、状态
-- **优先级**：决定调度顺序
-- **资源限制**：内存、Token、时间配额
-- **沙箱边界**：独立的内存空间、文件系统视图、网络命名空间
+An Agent is a first-class system process with:
+- **PID**: Unique identity
+- **Credentials**: UID, GID, permission sets
+- **Context**: KV Cache, conversation history, state
+- **Priority**: Determines scheduling order
+- **Resource Limits**: Memory, Token, time quotas
+- **Sandbox Boundaries**: Independent memory space, filesystem view, network namespace
 
-调度器管理其完整生命周期：`提交 → 就绪 → 运行 → 挂起/等待 → 终止`
+The Scheduler manages the full lifecycle: `Submitted → Ready → Running → Suspended/Waiting → Terminated`
 
-### Skill 即系统调用
+### Skill as System Call
 
-外部工具（搜索、数据库、邮件、API）以 **Skill** 形式在内核中注册，类似 Linux 的系统调用表。
+External tools (search, database, email, API) are registered in the kernel as **Skills**, analogous to Linux's system call table.
 
-Agent 调用 Skill 时经过完整的安全链路：
-1. **身份验证**：确认 Agent 身份有效
-2. **权限校验**：检查 Agent 是否被授权调用此 Skill
-3. **资源配额**：检查 Token/频率配额是否充足
-4. **输入过滤**：检测并阻断 Prompt 注入等恶意输入
-5. **执行调用**：在沙箱中执行
-6. **审计日志**：记录完整调用链（谁、何时、调用了什么、结果如何）
+When an Agent invokes a Skill, it passes through a complete security pipeline:
+1. **Authentication**: Verify Agent identity is valid
+2. **Authorization**: Check Agent has permission to invoke this Skill
+3. **Resource Quota**: Check Token/frequency quota is sufficient
+4. **Input Filtering**: Detect and block malicious inputs like Prompt injection
+5. **Execution**: Execute within the sandbox
+6. **Audit Log**: Record complete invocation chain (who, when, what, result)
 
-### 内核矫正工具箱
+### Kernel Correction Toolbox
 
-借鉴 Linux 的 `ptrace`、`coredump`、`/proc` 文件系统，LinAIx 为底层专家提供：
+Drawing from Linux's `ptrace`, `coredump`, and `/proc` filesystem, LinAIx provides experts with:
 
-| 能力 | 类比 | 说明 |
+| Capability | Analogy | Description |
 | :--- | :--- | :--- |
-| 强制抢占 | `SIGSTOP` | 剥夺失控 Agent 的推理时间片 |
-| 资源回收 | `OOM Killer` | 强制回收 Agent 占用的显存/KV Cache |
-| 权限吊销 | `capset` | 瞬间切断 Agent 对 Skill 的调用能力 |
-| Core Dump | `coredump` | 导出 Agent 完整状态用于离线分析 |
-| 内核断点 | `ptrace` | 在 Agent 推理路径上设置断点 |
-| 安全隔离 | `seccomp` / `AppArmor` | 限制 Agent 可执行的系统操作 |
+| Forced Preemption | `SIGSTOP` | Deprive runaway Agents of inference time slices |
+| Resource Reclamation | `OOM Killer` | Force-reclaim Agent-occupied memory/KV Cache |
+| Permission Revocation | `capset` | Instantly cut off Agent Skill invocation capabilities |
+| Core Dump | `coredump` | Export complete Agent state for offline analysis |
+| Kernel Breakpoints | `ptrace` | Set breakpoints on Agent reasoning paths |
+| Security Isolation | `seccomp` / `AppArmor` | Restrict system operations Agents can execute |
 
-### 算力中立
+### Compute Neutrality
 
-通过 HAL 抽象，LinAIx 根据策略自动路由推理请求：
+Through HAL abstraction, LinAIx automatically routes inference requests based on policies:
 
-| 策略 | 路由目标 |
+| Policy | Route Target |
 | :--- | :--- |
-| 延迟优先 | 本地 GPU |
-| 成本优先 | 本地开源模型（零 Token 成本） |
-| 质量优先 | GPT-4 / Claude 等最强模型 |
-| 隐私优先 | 本地推理，数据不出域 |
-| 故障转移 | 本地 GPU 故障时自动切到云端 |
-| 负载均衡 | 本地队列过长时溢出到远程集群 |
+| Latency First | Local GPU |
+| Cost First | Local open-source models (zero Token cost) |
+| Quality First | GPT-4 / Claude / strongest models |
+| Privacy First | Local inference, data never leaves the domain |
+| Failover | Local GPU failure → automatic cloud switch |
+| Load Balancing | Local queue overflow → spill to remote cluster |
 
-### 安全纵深防御
+### Defense in Depth
 
-LinAIx 的安全模型遵循**零信任**和**纵深防御**原则：
+LinAIx's security model follows **Zero Trust** and **Defense in Depth** principles:
+
+```
 ┌─────────────────────────────────────────────────────────────────┐
-│ LinAIx 安全纵深防御 │
-│ ┌───────────────────────────────────────────────────────────┐ │
-│ │ L5 应用层 • Agent 身份认证 │ │
-│ │ • 会话管理与 Token 刷新 │ │
-│ ├───────────────────────────────────────────────────────────┤ │
-│ │ L4 Skill层 • 权限校验 (RBAC/ABAC) │ │
-│ │ • 输入净化 (Prompt 注入检测) │ │
-│ │ • 操作审计 │ │
-│ ├───────────────────────────────────────────────────────────┤ │
-│ │ L3 调度层 • Agent 间资源隔离 │ │
-│ │ • 优先级防饥饿 │ │
-│ ├───────────────────────────────────────────────────────────┤ │
-│ │ L2 资源层 • 内存/显存配额强制隔离 │ │
-│ │ • KV Cache 访问控制 │ │
-│ ├───────────────────────────────────────────────────────────┤ │
-│ │ L1 HAL层 • 模型调用鉴权 │ │
-│ │ • API 密钥安全存储 │ │
-│ ├───────────────────────────────────────────────────────────┤ │
-│ │ 横切 • 全链路加密 (TLS) │ │
-│ │ • 敏感数据脱敏 │ │
-│ │ • 合规审计 (GDPR/SOC2 就绪) │ │
-│ └───────────────────────────────────────────────────────────┘ │
+│                    LinAIx Defense in Depth                      │
+│  ┌───────────────────────────────────────────────────────────┐ │
+│  │  L5 App Layer   • Agent authentication                   │ │
+│  │                 • Session management / Token refresh     │ │
+│  ├───────────────────────────────────────────────────────────┤ │
+│  │  L4 Skill Layer • Permission checks (RBAC/ABAC)         │ │
+│  │                 • Input sanitization (Prompt injection)  │ │
+│  │                 • Operation auditing                     │ │
+│  ├───────────────────────────────────────────────────────────┤ │
+│  │  L3 Scheduler   • Inter-Agent resource isolation        │ │
+│  │                 • Priority anti-starvation               │ │
+│  ├───────────────────────────────────────────────────────────┤ │
+│  │  L2 Resource    • Memory/GPU memory quota enforcement   │ │
+│  │                 • KV Cache access control                │ │
+│  ├───────────────────────────────────────────────────────────┤ │
+│  │  L1 HAL Layer   • Model invocation authentication       │ │
+│  │                 • API key secure storage                │ │
+│  ├───────────────────────────────────────────────────────────┤ │
+│  │  Cross-Cutting  • End-to-end encryption (TLS)           │ │
+│  │                 • Sensitive data masking                │ │
+│  │                 • Compliance auditing (GDPR/SOC2 ready) │ │
+│  └───────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────┘
-
-
----
-
-## 🚧 当前状态
-
-> **⚠️ LinAIx 处于早期设计和开发阶段。** 我们正在定义核心接口并构建内核原型。
-
-**当前重点任务：**
-- [ ] 定义各子系统接口规范（进行中）
-- [ ] 实现 `no_std` Rust 内核核心
-- [ ] 开发最小调度器（支持多 Agent 管理）
-- [ ] 构建 HAL 存根（支持本地推理）
-- [ ] 设计安全模块接口（认证/授权/审计）
-- [ ] 编写基础单元测试与集成测试
+```
 
 ---
 
-## 🛠️ 技术栈
+## 🚧 Current Status
 
-| 层级 | 技术 | 选型理由 |
+> **⚠️ LinAIx is in early-stage design and development.** We are defining core interfaces and building the kernel prototype.
+
+**Current Focus:**
+- [ ] Define subsystem interface specifications (in progress)
+- [ ] Implement `no_std` Rust kernel core
+- [ ] Develop minimal Scheduler (supporting multi-Agent management)
+- [ ] Build HAL stub (supporting local inference)
+- [ ] Design security module interfaces (authentication/authorization/audit)
+- [ ] Write foundational unit and integration tests
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technology | Rationale |
 | :--- | :--- | :--- |
-| **内核与核心** | Rust (no_std) | 内存安全，零成本抽象，无 GC 停顿，适合系统编程 |
-| **Agent SDK** | Python / Go（规划中） | Python：丰富 AI 生态；Go：高并发与简洁工程 |
-| **IPC** | gRPC / Protobuf | 跨语言支持，版本化契约 |
-| **可观测性** | OpenTelemetry | 厂商中立的追踪、指标、日志标准 |
-| **安全** | RustCrypto, OPA (策略引擎) | 加密原语、细粒度授权策略 |
-| **构建系统** | Cargo | Rust 原生构建与依赖管理 |
+| **Kernel & Core** | Rust (no_std) | Memory safety, zero-cost abstractions, no GC pauses — ideal for systems programming |
+| **Agent SDK** | Python / Go (planned) | Python: rich AI ecosystem; Go: high concurrency and clean engineering |
+| **IPC** | gRPC / Protobuf | Cross-language support, versioned contracts |
+| **Observability** | OpenTelemetry | Vendor-neutral tracing, metrics, and logging standards |
+| **Security** | RustCrypto, OPA (Policy Engine) | Cryptographic primitives, fine-grained authorization policies |
+| **Build** | Cargo | Rust-native build and dependency management |
 
 ---
 
-## 🗺️ 路线图
+## 🗺️ Roadmap
 
-| 版本 | 里程碑 |
+| Version | Milestone |
 | :--- | :--- |
-| **v0.1** | • 同时调度 2 个以上 Agent<br>• 基础 Skill API（注册/调用）<br>• 最小可观测性（日志、指标）<br>• HAL 本地推理支持<br>• 基础身份认证 |
-| **v0.5** | • 本地 + 远程混合推理<br>• 优先级调度与抢占<br>• CLI 管理工具<br>• KV Cache 池化<br>• RBAC 权限模型 |
-| **v1.0** | • 内核级强制干预（抢占/回收/吊销）<br>• 多 Agent IPC<br>• 持久化记忆管理<br>• 生产可用稳定性<br>• 完整安全审计链路 |
-| **v1.5** | • 被 3 个以上外部项目采用<br>• 社区生态初步形成<br>• Python/Go SDK 正式发布<br>• Prompt 注入防御体系 |
+| **v0.1** | • Schedule 2+ Agents concurrently<br>• Basic Skill API (register/invoke)<br>• Minimal observability (logs, metrics)<br>• HAL local inference support<br>• Basic authentication |
+| **v0.5** | • Local + remote hybrid inference<br>• Priority scheduling and preemption<br>• CLI management tool<br>• KV Cache pooling<br>• RBAC permission model |
+| **v1.0** | • Kernel-level mandatory intervention (preempt/reclaim/revoke)<br>• Multi-Agent IPC<br>• Persistent memory management<br>• Production-grade stability<br>• Full security audit pipeline |
+| **v1.5** | • Adopted by 3+ external projects<br>• Initial community ecosystem<br>• Python/Go SDK official release<br>• Prompt injection defense system |
 
 ---
 
-## 🔍 与现有项目的定位区别
+## 🔍 Positioning vs. Existing Projects
 
-| 项目 | 定位 | LinAIx 的差异 |
+| Project | Positioning | How LinAIx Differs |
 | :--- | :--- | :--- |
-| **Kubernetes** | 容器编排 | Kubernetes 管理无状态容器；LinAIx 管理有状态 Agent（KV Cache、上下文、推理亲和性） |
-| **LangChain** | Agent 应用框架 | LangChain 做 Agent「应用层」；LinAIx 做 Agent「操作系统层」——更底层、更通用 |
-| **vLLM** | 推理引擎 | vLLM 是「CPU」；LinAIx 是「整台计算机」——整合调度、内存、I/O、安全 |
-| **Dify** | 低代码 AI 平台 | Dify 面向终端用户；LinAIx 是构建这类平台的「地基」 |
-| **AIOS (论文)** | AI OS 概念验证 | AIOS 停留于理论论文；LinAIx 做生产可用的开源实现 |
+| **Kubernetes** | Container orchestration | Kubernetes manages stateless containers; LinAIx manages stateful Agents (KV Cache, context, inference affinity) |
+| **LangChain** | Agent application framework | LangChain is Agent "application layer"; LinAIx is Agent "operating system layer" — lower-level and more general |
+| **vLLM** | Inference engine | vLLM is the "CPU"; LinAIx is the "full computer" — integrating scheduling, memory, I/O, and security |
+| **Dify** | Low-code AI platform | Dify targets end-users; LinAIx is the "foundation" for building such platforms |
+| **AIOS (paper)** | AI OS concept proof | AIOS remains theoretical/academic; LinAIx aims for a production-grade open-source implementation |
 
 ---
 
-## 🤝 参与贡献
+## 🤝 Contributing
 
-我们正在寻找：
+We are looking for:
 
-- **内核工程师**：有操作系统、调度器、内存管理经验
-- **Rust 爱好者**：热爱系统编程，追求内存安全与性能
-- **AI 系统思考者**：对 Agent 架构、分布式推理有独到见解
-- **安全工程师**：熟悉零信任架构、权限模型、安全审计
+- **Kernel Engineers**: Experience with operating systems, schedulers, memory management
+- **Rust Enthusiasts**: Passionate about systems programming, memory safety, and performance
+- **AI Systems Thinkers**: Unique insights into Agent architecture and distributed inference
+- **Security Engineers**: Familiar with zero-trust architectures, permission models, and security auditing
 
-**贡献方式：**
-1. 阅读 [设计文档](./docs/)
-2. 查看 [Issues](https://github.com/LinAIx/LinAIx/issues) 了解待办任务
-3. 加入讨论（Discord/Matrix 链接待开放）
+**How to Contribute:**
+1. Read the [Design Documents](./docs/)
+2. Check [Issues](https://github.com/LinAIx/LinAIx/issues) for open tasks
+3. Join the discussion (Discord/Matrix links coming soon)
 
-**开发环境搭建：**
+**Development Setup:**
 ```bash
-# 克隆仓库
+# Clone the repository
 git clone https://github.com/LinAIx/LinAIx.git
 cd LinAIx
 
-# 构建内核
+# Build the kernel
 cargo build --release
 
-# 运行测试
+# Run tests
 cargo test
 
-# 运行最小示例
+# Run the minimal example
 cargo run --example minimal
+```
 
-## 📄 许可证
-LinAIx 采用 GNU General Public License v2.0，与 Linux 内核保持一致，传承开源精神。
+---
 
-**LinAIx：当 Linux 遇见智能。**
+## 📄 License
+
+LinAIx is licensed under the **GNU General Public License v2.0**, aligning with the foundational philosophy of Linux.
+
+---
+
+# **LinAIx: Where Linux Meets Intelligence.**
+
+---
