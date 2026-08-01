@@ -1,0 +1,106 @@
+// SPDX-License-Identifier: GPL-2.0-only
+//
+// LinAIx - The Linux of the AI era
+// Copyright (C) 2026 VmFree <vmfree@example.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// version 2 as published by the Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+//! # KV Cache 类型定义
+//!
+//! ## Version
+//! 0.1.0
+//!
+//! ## Author
+//! VmFree <vmfree@example.com>
+//!
+//! ## Date
+//! 2026-08-01
+
+use serde::{Deserialize, Serialize};
+
+/// 会话 ID
+pub type SessionId = alloc::string::String;
+
+/// 模型 ID
+pub type ModelId = alloc::string::String;
+
+/// KV Cache 句柄
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct KvCacheHandle {
+    pub id: alloc::string::String,
+    pub session_id: SessionId,
+    pub model_id: ModelId,
+    pub size_bytes: usize,
+    pub location: StorageLocation,
+}
+
+/// 存储位置
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum StorageLocation {
+    /// GPU 显存
+    GpuMemory {
+        device_id: u32,
+        offset: u64,
+    },
+    /// 系统内存
+    SystemMemory {
+        ptr: u64,  // 指针地址 (仅用于追踪)
+    },
+    /// 磁盘
+    Disk {
+        path: alloc::string::String,
+    },
+}
+
+/// KV Cache 状态
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum KvCacheState {
+    /// 在显存中，活跃可用
+    Active,
+    /// 在系统内存中，已换出
+    SwappedOut,
+    /// 在磁盘中，已持久化
+    Persisted,
+    /// 正在换出中
+    SwappingOut,
+    /// 正在换入中
+    SwappingIn,
+    /// 正在释放中
+    Freeing,
+}
+
+/// KV Cache 状态详情
+#[derive(Debug, Clone)]
+pub struct KvCacheStatus {
+    pub handle: KvCacheHandle,
+    pub state: KvCacheState,
+    pub ref_count: u32,
+    pub pinned: bool,
+    pub last_used_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub access_count: u64,
+}
+
+/// KV Cache 统计信息
+#[derive(Debug, Clone, Default)]
+pub struct KvCacheStats {
+    pub total_caches: u64,
+    pub total_size_bytes: u64,
+    pub active_count: u64,
+    pub active_size_bytes: u64,
+    pub swapped_out_count: u64,
+    pub swapped_out_size_bytes: u64,
+    pub persisted_count: u64,
+    pub persisted_size_bytes: u64,
+    pub swap_in_count: u64,
+    pub swap_out_count: u64,
+    pub hit_count: u64,
+    pub miss_count: u64,
+}
