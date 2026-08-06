@@ -23,6 +23,7 @@
 //! ## Date
 //! 2026-08-01
 
+use super::types::*;
 use crate::model::types::*;
 use crate::model::error::ModelError;
 
@@ -62,15 +63,4 @@ pub trait ModelInfoProvider: Send + Sync {
 
     /// 检查模型是否存在
     fn model_exists(&self, model_id: &ModelId) -> bool;
-}
-
-/// Tokenizer 信息
-#[derive(Debug, Clone)]
-pub struct TokenizerInfo {
-    pub vocab_size: usize,
-    pub special_tokens: std::collections::HashMap<alloc::string::String, u32>,
-    pub eos_token_id: u32,
-    pub bos_token_id: Option<u32>,
-    pub pad_token_id: Option<u32>,
-    pub unk_token_id: Option<u32>,
 }

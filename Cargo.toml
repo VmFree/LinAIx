@@ -1,0 +1,42 @@
+[package]
+name = "linAIx"
+version = "0.1.0"
+edition = "2021"
+authors = ["VmFree <vmfree@example.com>"]
+license = "GPL-2.0-only"
+description = "The Linux of the AI era - A Rust-based kernel for AI Agents"
+repository = "https://github.com/LinAIx/LinAIx"
+readme = "README.md"
+keywords = ["ai", "agent", "kernel", "scheduler", "rust"]
+categories = ["operating-systems", "ai"]
+
+[dependencies]
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "1.0"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Async
+async-trait = "0.1"
+
+# Versioning
+semver = "1.0"
+
+# Cryptography
+sha2 = "0.10"
+# argon2 = "0.5"      # 可选: 密码哈希
+
+# 标准库
+alloc = { version = "1.0", optional = true }
+
+[features]
+default = ["std"]
+std = []
+
+[dev-dependencies]
+# 测试用

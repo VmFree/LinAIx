@@ -12,11 +12,11 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-//! # KV Cache 管理实现
+//! # KV Cache 管理
 //!
 //! 负责 KV Cache 的分配/释放/换入/换出/持久化/恢复
 //!
-//! ## Version
+//! ## 版本
 //! 0.1.0
 //!
 //! ## Author
@@ -25,8 +25,8 @@
 //! ## Date
 //! 2026-08-01
 
-pub mod manager;
-pub mod eviction;
+pub mod traits;
+pub mod types;
 
-pub use manager::*;
-pub use eviction::*;
+pub use traits::*;
+pub use types::*;

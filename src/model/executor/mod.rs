@@ -15,17 +15,25 @@
 //! # 模型执行器
 //!
 //! 提供统一的推理执行接口，不涉及模型的加载/卸载/生命周期管理。
-//! 模型的实际加载/卸载由 `ModelScheduler` 模块管理。
+//!
+//! ## 核心组件
+//!
+//! | 组件 | 职责 |
+//! |------|------|
+//! | [`ModelExecutor`] | 推理执行接口 |
+//! | [`StreamOutput`] | 流式输出接口 |
 //!
 //! ## 版本
 //! 0.1.0
 //!
-//! ## 作者
+//! ## Author
 //! VmFree <vmfree@example.com>
 //!
-//! ## 日期
+//! ## Date
 //! 2026-08-01
 
 pub mod traits;
+pub mod types;
 
 pub use traits::*;
+pub use types::*;

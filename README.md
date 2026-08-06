@@ -53,6 +53,30 @@ Through the Hardware Abstraction Layer (HAL), Agents seamlessly switch between l
 
 ---
 
+## 🤝 Multi-Agent Collaboration
+
+LinAIx provides system-level inter-agent communication and coordination mechanisms, but **does not prescribe specific collaboration patterns**. This follows the classic operating system design principle — **"Mechanism and Policy Separation"**.
+
+### Design Principle: Mechanism vs. Policy Separation
+
+| Layer | Responsibility | Analogy |
+| :--- | :--- | :--- |
+| **Upper Layer (Application/Framework)** | Determines "how to collaborate" (master-worker, pipeline, voting, debate, etc.) | Application-level orchestration |
+| **LinAIx Kernel** | Provides "primitive capabilities for collaboration" (communication, synchronization, sharing, scheduling, etc.) | Linux provides `pipe`/`socket`/`futex` |
+
+### Primitive Capabilities Provided by LinAIx
+
+| Capability | Description | Analogy |
+| :--- | :--- | :--- |
+| **IPC Channel** | Standardized message passing between Agents, supporting point-to-point, broadcast, and streaming communication | Linux `pipe()` / `socket()` |
+| **Shared Memory** | Agents share KV Cache and context data with zero-copy for high-performance collaboration | Linux `shm` |
+| **Synchronization Primitives** | Agents can wait, notify, and acquire locks for simple coordination | Linux `futex` / `semaphore` |
+| **Collaboration Group** | Multiple Agents form a group for resource quota and scheduling at the group level | Linux `cgroup` |
+| **Group-level Scheduling** | L3 Scheduler allocates GPU time slices at the group level to ensure coordinated execution | Linux CFS group scheduling |
+| **End-to-End Tracing** | Cross-Agent requests are traced with a unified Trace ID for full observability | Linux `tracepoint` |
+| **Inter-Agent Authorization** | Agent A requires explicit permissions to send messages to Agent B or invoke its Skills | Linux file permissions |
+
+
 ## 🔴 The Agent Ecosystem Pain Points
 
 LinAIx addresses **7 categories with 29 specific pain points** prevalent in current AI Agent development and operations.

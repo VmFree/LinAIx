@@ -14,17 +14,19 @@
 
 //! # Security 子系统
 //!
-//! 提供认证、授权、审计、加密、密钥管理和注入检测能力。
+//! 提供账户管理、认证、授权、审计、加密、密钥管理和注入检测能力。
 //!
-//! ## 核心接口
-//! | Trait | 职责 |
-//! |-------|------|
-//! | [`Authentication`] | 身份认证 |
-//! | [`Authorization`] | 权限检查与策略管理 |
-//! | [`Audit`] | 审计日志 |
-//! | [`Crypto`] | 加密/解密/哈希 |
-//! | [`KeyManagement`] | 密钥生命周期管理 |
-//! | [`InjectionDetection`] | Prompt 注入检测 |
+//! ## 模块结构
+//!
+//! | 模块 | 职责 |
+//! |------|------|
+//! | [`account`] | 账户数据源抽象 (可插拔) |
+//! | [`auth`] | 身份认证与 Token 管理 |
+//! | [`authorization`] | 权限检查与策略管理 |
+//! | [`audit`] | 审计日志记录与查询 |
+//! | [`crypto`] | 加密/解密/哈希 |
+//! | [`key_management`] | 密钥生命周期管理 |
+//! | [`injection`] | Prompt 注入检测 |
 //!
 //! ## 版本
 //! 0.1.0
@@ -36,16 +38,40 @@
 //! 2026-07-31
 
 pub mod error;
-pub mod traits;
-pub mod types;
+pub mod types;              // 跨模块共享类型
 
-// 各模块的具体实现 (预留)
-// pub mod auth;
-// pub mod authorization;
-// pub mod audit;
-// pub mod crypto;
-// pub mod injection;
+pub mod account;
+pub mod auth;
+pub mod authorization;
+pub mod audit;
+pub mod crypto;
+pub mod key_management;
+pub mod injection;
 
-pub use traits::*;
-pub use types::*;
+// ===== 统一类型导出 =====
+
+pub mod all_types {
+    pub use crate::security::types::*;
+    pub use crate::security::account::types::*;
+    pub use crate::security::auth::types::*;
+    pub use crate::security::authorization::types::*;
+    pub use crate::security::audit::types::*;
+    pub use crate::security::crypto::types::*;
+    pub use crate::security::key_management::types::*;
+    pub use crate::security::injection::types::*;
+}
+
+// ===== 统一 Trait 导出 =====
+
+pub mod traits {
+    pub use crate::security::account::AccountProvider;
+    pub use crate::security::auth::Authentication;
+    pub use crate::security::authorization::Authorization;
+    pub use crate::security::audit::Audit;
+    pub use crate::security::crypto::Crypto;
+    pub use crate::security::key_management::KeyManagement;
+    pub use crate::security::injection::InjectionDetection;
+}
+
 pub use error::SecurityError;
+pub use types::{KeyId, TenantId};

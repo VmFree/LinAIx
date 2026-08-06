@@ -16,7 +16,14 @@
 //!
 //! 提供模型元数据的查询接口，不涉及模型的实际加载/卸载。
 //!
-//! ## Version
+//! ## 核心组件
+//!
+//! | 组件 | 职责 |
+//! |------|------|
+//! | [`ModelInfoProvider`] | 模型信息查询接口 |
+//! | [`TokenizerInfo`] | Tokenizer 信息 |
+//!
+//! ## 版本
 //! 0.1.0
 //!
 //! ## Author
@@ -26,5 +33,7 @@
 //! 2026-08-01
 
 pub mod traits;
+pub mod types;
 
 pub use traits::*;
+pub use types::*;

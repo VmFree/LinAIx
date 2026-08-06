@@ -71,7 +71,7 @@ pub enum ResourceError {
     // ===== 配额 =====
     #[error("Quota exceeded: {resource_type} limit={limit}, current={current}")]
     QuotaExceeded {
-        resource_type: crate::resource::types::ResourceType,
+        resource_type: crate::res_mgr::types::ResourceType,
         limit: u64,
         current: u64,
     },

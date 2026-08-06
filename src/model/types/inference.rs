@@ -31,6 +31,15 @@ pub struct InferenceRequest {
     /// 请求唯一标识 (全链路追踪)
     pub request_id: alloc::string::String,
 
+    /// 所属任务ID
+    pub task_id: TaskId,
+
+    /// 所属子任务ID
+    pub subtask_id: SubTaskId,
+
+    /// 所属框架ID
+    pub framework_id: Option<FrameworkId>,
+
     /// 目标模型 ID
     pub model_id: super::model::ModelId,
 
@@ -102,6 +111,8 @@ pub struct InferenceOptions {
 #[derive(Debug, Clone)]
 pub struct InferenceResult {
     pub request_id: alloc::string::String,
+    pub task_id: TaskId,
+    pub subtask_id: SubTaskId,
     pub model_id: super::model::ModelId,
     pub backend: super::backend::BackendType,
     pub response: alloc::string::String,
@@ -153,11 +164,4 @@ pub struct StreamChunk {
     pub tokens_so_far: u32,
     pub timestamp: core::time::Instant,
     pub latency_ms: u64,
-}
-
-/// 流式输出接口
-#[async_trait::async_trait]
-pub trait StreamOutput: Send + Sync {
-    async fn next(&mut self) -> Option<Result<StreamChunk, super::error::ModelError>>;
-    fn cancel(&self) -> Result<(), super::error::ModelError>;
 }

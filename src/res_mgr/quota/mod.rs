@@ -12,11 +12,11 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-//! # 配额管理实现
+//! # 配额管理
 //!
 //! 负责配额的设置/获取/检查/报告/更新
 //!
-//! ## Version
+//! ## 版本
 //! 0.1.0
 //!
 //! ## Author
@@ -25,6 +25,8 @@
 //! ## Date
 //! 2026-08-01
 
-pub mod manager;
+pub mod traits;
+pub mod types;
 
-pub use manager::*;
+pub use traits::*;
+pub use types::*;

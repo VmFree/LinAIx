@@ -12,11 +12,11 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-//! # 资源统计实现
+//! # 资源统计
 //!
 //! 负责资源使用量查询/压力指标/事件订阅
 //!
-//! ## Version
+//! ## 版本
 //! 0.1.0
 //!
 //! ## Author
@@ -25,6 +25,8 @@
 //! ## Date
 //! 2026-08-01
 
-pub mod collector;
+pub mod traits;
+pub mod types;
 
-pub use collector::*;
+pub use traits::*;
+pub use types::*;

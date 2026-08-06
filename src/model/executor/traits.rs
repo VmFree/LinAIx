@@ -19,12 +19,13 @@
 //! ## 版本
 //! 0.1.0
 //!
-//! ## 作者
+//! ## Author
 //! VmFree <vmfree@example.com>
 //!
-//! ## 日期
+//! ## Date
 //! 2026-08-01
 
+use super::types::*;
 use crate::model::types::*;
 use crate::model::error::ModelError;
 
@@ -35,13 +36,6 @@ use crate::model::error::ModelError;
 pub trait ModelExecutor: Send + Sync {
     /// 执行推理 (同步)
     ///
-    /// # 参数
-    /// - `request`: 推理请求
-    ///
-    /// # 返回
-    /// - `Ok(InferenceResult)`: 推理结果
-    /// - `Err(ModelError)`: 推理失败
-    ///
     /// # 注意
     /// 调用方需要确保模型已加载 (由 ModelScheduler 保证)
     fn infer(&self, request: &InferenceRequest) -> Result<InferenceResult, ModelError>;
@@ -50,24 +44,12 @@ pub trait ModelExecutor: Send + Sync {
     async fn infer_async(&self, request: &InferenceRequest) -> Result<InferenceResult, ModelError>;
 
     /// 流式推理
-    ///
-    /// # 返回
-    /// - 流式输出对象，可逐 Token 获取结果
     fn infer_stream(&self, request: &InferenceRequest) -> Result<Box<dyn StreamOutput>, ModelError>;
 
     /// 批量推理
-    ///
-    /// # 参数
-    /// - `requests`: 多个推理请求
-    ///
-    /// # 返回
-    /// - 推理结果列表 (顺序与请求一致)
     fn infer_batch(&self, requests: &[InferenceRequest]) -> Result<alloc::vec::Vec<InferenceResult>, ModelError>;
 
     /// 获取模型执行指标
-    ///
-    /// # 返回
-    /// - 当前模型的运行时指标
     fn get_metrics(&self, model_id: &ModelId) -> Result<ModelMetrics, ModelError>;
 
     /// 获取所有模型的全局指标
